@@ -297,19 +297,23 @@ class Git:
                line.startswith('"""') or \
                line.startswith("*")
 
-    def get_commits_modified_file(self, filepath: str) -> List[str]:
+    def get_commits_modified_file(self, filepath: str, full_log=False) -> List[str]:
         """
         Given a filepath, returns all the commits that modified this file
         (following renames).
 
         :param str filepath: path to the file
+        :param bool full_log: if True, include commits that modifies a file that not present in the current working tree
         :return: the list of commits' hash
         """
         path = str(Path(filepath))
 
         commits = []
         try:
-            commits = self.repo.git.log("--follow", "--format=%H", path).split('\n')
+            if full_log:
+                commits = self.repo.git.log("--follow", "--format=%H", "--", path).split('\n')
+            else:
+                commits = self.repo.git.log("--follow", "--format=%H", path).split('\n')
         except GitCommandError:
             logger.debug(f"Could not find information of file {path}")
 

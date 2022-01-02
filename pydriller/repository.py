@@ -56,6 +56,7 @@ class Repository:
                  only_commits: List[str] = None,
                  only_releases: bool = False,
                  filepath: str = None,
+                 full_log: bool = False,
                  histogram_diff: bool = False,
                  skip_whitespaces: bool = False,
                  clone_repo_to: str = None,
@@ -97,6 +98,7 @@ class Repository:
         :param bool skip_whitespaces: add the "-w" option when asking for the diff
         :param bool clone_repo_to: if the repo under analysis is remote, clone the repo to the specified directory
         :param str filepath: only commits that modified this file will be analyzed
+        :param str full_log: analysis commits modifying files that not present in the current working tree
         :param str order: order of commits. It can be one of: 'date-order',
             'author-date-order', 'topo-order', or 'reverse'. Default is reverse.
         """
@@ -130,6 +132,7 @@ class Repository:
             "only_releases": only_releases,
             "skip_whitespaces": skip_whitespaces,
             "filepath": filepath,
+            "full_log": full_log,
             "filepath_commits": None,
             "tagged_commits": None,
             "histogram": histogram_diff,
@@ -215,7 +218,7 @@ class Repository:
                 # git rev-list since it doesn't have the option --follow, necessary to follow
                 # the renames. Hence, we manually call git log instead
                 if self._conf.get('filepath') is not None:
-                    self._conf.set_value('filepath_commits', git.get_commits_modified_file(self._conf.get('filepath')))
+                    self._conf.set_value('filepath_commits', git.get_commits_modified_file(self._conf.get('filepath'), self._conf.get('full_log')))
 
                 # Gets only the commits that are tagged
                 if self._conf.get('only_releases'):
